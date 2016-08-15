@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"crypto/tls"
 )
 
 var (
@@ -57,6 +58,16 @@ func NewClient(conn net.Conn) (*Client, error) {
 	}
 
 	return &Client{Text: text, conn: conn}, nil
+}
+
+func (c *Client) Stls(config *tls.Config) error {
+	err := c.cmdSimple("STLS")
+	if err != nil {
+		return err
+	}
+	c.conn = tls.Client(c.conn, config)
+	c.Text = NewConn(c.conn)
+	return nil
 }
 
 // User issues a USER command to the server using the provided user name.
